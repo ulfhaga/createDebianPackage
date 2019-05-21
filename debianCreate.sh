@@ -3,14 +3,16 @@
 # Create package for shell (No Makefile).
 # https://www.debian.org/doc/manuals/debmake-doc/ch08.en.html#nomakefile
 #set -x
+set -e
+
 declare -r SCRIPT=${0##*/}  || exit 201;  # SCRIPT is the name of this script
 declare -r CDIR=`dirname $0`
 declare -r DIR=`pwd`
 
 # Setup
 declare -r pack_name=mark-test-sh
-declare -r version=1.0
-declare -r bash_file=market_test.sh
+declare -r version=1.0.0
+declare -r bash_file=market_test
 declare -r man_file=${DIR}/market_test.1
 declare -r shell_file=${DIR}/${bash_file}
 declare -r base_folder="/home/ulf/projects/adtooxDebianPackages/market"
@@ -34,13 +36,26 @@ main() {
   echo "Untar ball"
   tar -xzmf ${base_folder}/${pack_name}/${tar_boll} -C ${base_folder}/${pack_name}
   cd ${base_folder}/${pack_name}/${pack_name}-${version}
-  debmake -b':sh'
+  debmake -b':sh' 
 
-# rules file
+# Changelog
+ sed -i -e 's/Initial release. Closes: #nnnn/Initial release./g'  "${base_folder}/${pack_name}/${pack_name}-${version}/debian/changelog"
+ sed -i -e '/is the bug number of your ITP/d'  "${base_folder}/${pack_name}/${pack_name}-${version}/debian/changelog"
+# sed -i -e 's/UNRELEASED/unstable/'  "${base_folder}/${pack_name}/${pack_name}-${version}/debian/changelog"
+ 
 
+# Copyright
+
+ cp -f ${DIR}/copyright "${base_folder}/${pack_name}/${pack_name}-${version}/debian/"
+
+# README.Debian   
+  rm "${base_folder}/${pack_name}/${pack_name}-${version}/debian/README.Debian"
+
+# Rules 
   sed -i -e'/You must remove/d'  "${base_folder}/${pack_name}/${pack_name}-${version}/debian/rules"
   sed -i -e '/export DH_VERBOSE/d'  "${base_folder}/${pack_name}/${pack_name}-${version}/debian/rules"
-# control file
+
+# Control file
   sed -i -e 's/Homepage: <insert the upstream URL, if relevant>/Homepage: http:\/\/adtoox.com/g'  "${base_folder}/${pack_name}/${pack_name}-${version}/debian/control"
   sed -i -e 's/Section: unknown/Section: devel/g'  "${base_folder}/${pack_name}/${pack_name}-${version}/debian/control"
 
@@ -70,7 +85,7 @@ create_tar_ball() {
 
   mkdir scripts
   cp ${shell_file}  scripts ;
-  chmod 755 scripts/${shell_file}; 
+  chmod 755 scripts/${bash_file}; 
 
   mkdir man
   cp "${man_file}" man || $(File ${man_file} is missing; exit 3);
