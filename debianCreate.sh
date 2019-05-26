@@ -12,6 +12,7 @@ declare -r DIR=`pwd`
 # Setup
 declare -r pack_name=mark-test-sh
 declare -r version=1.0.0
+declare -r revision=1
 declare -r bash_file=market_test
 declare -r man_file=${DIR}/market_test.1
 declare -r shell_file=${DIR}/${bash_file}
@@ -36,7 +37,8 @@ main() {
   echo "Untar ball"
   tar -xzmf ${base_folder}/${pack_name}/${tar_boll} -C ${base_folder}/${pack_name}
   cd ${base_folder}/${pack_name}/${pack_name}-${version}
-  debmake -b':sh' 
+# debmake -b':sh' -r ${revision}  -t -i debuild
+  debmake -b':sh' -r ${revision}  
 
 # Changelog
  sed -i -e 's/Initial release. Closes: #nnnn/Initial release./g'  "${base_folder}/${pack_name}/${pack_name}-${version}/debian/changelog"
@@ -70,10 +72,9 @@ main() {
   cd "${base_folder}/${pack_name}/${pack_name}-${version}"
   debuild
 
+ printf "List content in package\n"
+dpkg -c ${base_folder}/${pack_name}/${pack_name}_${version}-1_all.deb
 
-printf "Open folder %q" ${base_folder}/${pack_name}/${pack_name}-${version}/debian
-
-printf "Edit file control "
 
 }
 
